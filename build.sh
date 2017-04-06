@@ -1,11 +1,17 @@
 #!/bin/bash
-set -ex
+set -eu
 
-USERNAME=guusk
-IMAGE=docker-texlive
+username=( guusk )
+image=( docker-texlive )
 
-for i in $(ls -d */); do 
-    echo "Building $USERMAGE/$IMAGE:${i%%/}"; 
-    docker build -t $USERNAME/$IMAGE:${i%%/} $i;
+versions=( */ )
+versions=( "${versions[@]%/}" )
+
+# sort version numbers with highest first
+IFS=$'\n'; versions=( $(echo "${versions[*]}" | sort -rV) ); unset IFS
+
+for version in "${versions[@]}"; do
+    echo "Building $username/$image:$version"; 
+    docker build -t $username/$image:$version $version/;
 done
 
