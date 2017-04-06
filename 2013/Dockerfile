@@ -21,7 +21,9 @@ ENV TEXMFSYSCONFIG /usr/local/texlive/$TEXLIVE_VERSION/texmf-config
 ENV TEXMFSYSVAR /usr/local/texlive/$TEXLIVE_VERSION/texmf-var
 ENV TEXMFVAR /data/.texlive$TEXLIVE_VERSION/texmf-var
 
+ENV TEXLIVE_SHA256 8b200e78b87899349404bdc58b47241291ba7a74846b816a926b02c2fe20aca7
 RUN wget ftp://tug.org/historic/systems/texlive/$TEXLIVE_VERSION/tlnet-final/install-tl-unx.tar.gz \
+  && echo "$TEXLIVE_SHA256 install-tl-unx.tar.gz" | sha256sum -c \
   && tar xzvf install-tl-unx.tar.gz \
   && ./install-tl-*/install-tl -profile /texlive.profile \
   -repository ftp://tug.org/historic/systems/texlive/$TEXLIVE_VERSION/tlnet-final \

@@ -22,6 +22,8 @@ ENV TEXMFSYSVAR /usr/local/texlive/$TEXLIVE_VERSION/texmf-var
 ENV TEXMFVAR /data/.texlive$TEXLIVE_VERSION/texmf-var
 
 RUN wget http://mirror.ctan.org/systems/texlive/tlnet/install-tl-unx.tar.gz \
+  && wget http://mirror.ctan.org/systems/texlive/tlnet/install-tl-unx.tar.gz.sha512 \
+  && sha512sum -c install-tl-unx.tar.gz.sha512 \
   && tar xzvf install-tl-unx.tar.gz \
   && ./install-tl-*/install-tl -profile /texlive.profile \
   && rm -rf install-tl-*
