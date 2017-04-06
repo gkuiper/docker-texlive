@@ -4,7 +4,10 @@ set -eu
 username=( guusk )
 image=( docker-texlive )
 
-versions=( */ )
+versions=( "$@" )
+if [ ${#versions[@]} -eq 0 ]; then
+	versions=( */ )
+fi
 versions=( "${versions[@]%/}" )
 
 # sort version numbers with highest first
