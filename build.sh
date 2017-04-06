@@ -14,7 +14,7 @@ versions=( "${versions[@]%/}" )
 IFS=$'\n'; versions=( $(echo "${versions[*]}" | sort -rV) ); unset IFS
 
 for version in "${versions[@]}"; do
-    echo "Building $username/$image:$version"; 
-    docker build -t $username/$image:$version $version/;
+    echo "Building $username/$image:$version" 
+    docker build -t $username/$image:$version $version/
 done
 
