@@ -1,3 +1,8 @@
+#
+# THIS DOCKERFILE IS GENERATED VIA "update.sh"
+#
+# PLEASE DO NOT EDIT IT DIRECTLY.
+#
 FROM debian:jessie
 MAINTAINER Guus Kuiper <guuskuiper@gmail.com>
 ENV DEBIAN_FRONTEND noninteractive
@@ -8,7 +13,7 @@ RUN apt-get update \
     wget perl perl-tk fontconfig libwww-perl \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
-  
+    
 #Configuration
 COPY texlive.profile /
 WORKDIR /data
