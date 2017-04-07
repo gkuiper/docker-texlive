@@ -33,4 +33,6 @@ RUN wget http://mirror.ctan.org/systems/texlive/tlnet/install-tl-unx.tar.gz \
   && ./install-tl-*/install-tl -profile /texlive.profile \
   && rm -rf install-tl-*
 
+ENV PATH="${TEXDIR}/bin/x86_64-linux:${PATH}"
+
 VOLUME ["/data"]

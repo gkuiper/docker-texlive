@@ -34,4 +34,6 @@ RUN wget ftp://tug.org/historic/systems/texlive/$TEXLIVE_VERSION/tlnet-final/ins
   -repository ftp://tug.org/historic/systems/texlive/$TEXLIVE_VERSION/tlnet-final \
   && rm -rf install-tl-*
 
+ENV PATH="${TEXDIR}/bin/x86_64-linux:${PATH}"
+
 VOLUME ["/data"]

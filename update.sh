@@ -56,8 +56,6 @@ RUN wget ftp://tug.org/historic/systems/texlive/\$TEXLIVE_VERSION/tlnet-final/in
   && ./install-tl-*/install-tl -profile /texlive.profile \\
   -repository ftp://tug.org/historic/systems/texlive/\$TEXLIVE_VERSION/tlnet-final \\
   && rm -rf install-tl-*
-
-VOLUME ["/data"]
 EOD
 	else
 			cat >> "$version/Dockerfile" <<EOD
@@ -67,8 +65,12 @@ RUN wget http://mirror.ctan.org/systems/texlive/tlnet/install-tl-unx.tar.gz \\
   && tar xzvf install-tl-unx.tar.gz \\
   && ./install-tl-*/install-tl -profile /texlive.profile \\
   && rm -rf install-tl-*
+EOD
+	fi
+	cat >> "$version/Dockerfile" <<EOD
+
+ENV PATH="\${TEXDIR}/bin/x86_64-linux:\${PATH}"
 
 VOLUME ["/data"]
 EOD
-	fi
 done
