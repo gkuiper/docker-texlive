@@ -4,13 +4,21 @@ set -eo pipefail
 cd "$(dirname "$(readlink -f "$BASH_SOURCE")")"
 
 versions=( "$@" )
+all_versions=( */ )
 if [ ${#versions[@]} -eq 0 ]; then
-	versions=( */ )
+    versions=("${all_versions[@]}")
 fi
+echo "versions: ${versions[@]}"
 versions=( "${versions[@]%/}" )
+echo "versions: ${versions[@]}"
+all_versions=( "${all_versions[@]%/}" )
+IFS=$'\n'; latest=( $(echo "${all_versions[*]}" | sort -rV | head -1) ); unset IFS
+echo "versions: ${versions[@]}"
+echo "latest: $latest"
 
 # sort version numbers with highest first
 IFS=$'\n'; versions=( $(echo "${versions[*]}" | sort -rV) ); unset IFS
+echo "versions: ${versions[@]}"
 
 for version in "${versions[@]}"; do
 	echo "$version"
@@ -45,7 +53,8 @@ ENV TEXMFVAR /data/.texlive\$TEXLIVE_VERSION/texmf-var
 
 EOD
 		
-	if [ "$version" -le 2015 ]; then
+#old versions use sha256, from 2016 sha512
+	if [ "$version" -le "2015" ]; then
 			sha256=$(curl -s "ftp://tug.org/historic/systems/texlive/$version/tlnet-final/install-tl-unx.tar.gz.sha256" | cut -d' ' -f1)
 			echo "$version: $sha256"
 			cat >> "$version/Dockerfile" <<EOD
@@ -57,10 +66,31 @@ RUN wget ftp://tug.org/historic/systems/texlive/\$TEXLIVE_VERSION/tlnet-final/in
   -repository ftp://tug.org/historic/systems/texlive/\$TEXLIVE_VERSION/tlnet-final \\
   && rm -rf install-tl-*
 EOD
-	else
+	elif [ "$version" -lt "$latest" ]; then
+			sha512=$(curl -s "ftp://tug.org/historic/systems/texlive/$version/tlnet-final/install-tl-unx.tar.gz.sha512" | cut -d' ' -f1)
+			echo "$version: $sha512"
 			cat >> "$version/Dockerfile" <<EOD
-RUN wget http://mirror.ctan.org/systems/texlive/tlnet/install-tl-unx.tar.gz \\
-  && wget http://mirror.ctan.org/systems/texlive/tlnet/install-tl-unx.tar.gz.sha512 \\
+ENV TEXLIVE_SHA512 $sha512
+RUN wget ftp://tug.org/historic/systems/texlive/\$TEXLIVE_VERSION/tlnet-final/install-tl-unx.tar.gz \\
+  && echo "\$TEXLIVE_SHA512 install-tl-unx.tar.gz" | sha512sum -c \\
+  && tar xzvf install-tl-unx.tar.gz \\
+  && ./install-tl-*/install-tl -profile /texlive.profile \\
+  -repository ftp://tug.org/historic/systems/texlive/\$TEXLIVE_VERSION/tlnet-final \\
+  && rm -rf install-tl-*
+EOD
+	else
+#each mirror can have a slightly different version and sha, so dont include the hash in the Dockerfile
+			cat >> "$version/Dockerfile" <<EOD
+            
+RUN apt-get update \\
+  && apt-get install --no-install-recommends -y \\
+    curl \\
+  && apt-get clean \\
+  && rm -rf /var/lib/apt/lists/*
+  
+RUN URL="\$(curl -sILw '%{url_effective}' http://mirror.ctan.org/systems/texlive/tlnet/install-tl-unx.tar.gz -o /dev/null)" && echo \$URL \\
+  && wget \$URL \\
+  && wget \$URL.sha512 \\
   && sha512sum -c install-tl-unx.tar.gz.sha512 \\
   && tar xzvf install-tl-unx.tar.gz \\
   && ./install-tl-*/install-tl -profile /texlive.profile \\
